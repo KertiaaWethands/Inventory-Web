@@ -1,0 +1,33 @@
+.side{
+    border-radius: 20px;
+    width: 250px;
+    height: 730px;
+    background-color: #AEDBCE;
+}
+
+.imgLogo{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 20px;
+}
+
+.containerKoin{
+    text-align: center;
+    margin-top: 10px;
+    font-size: 20px;
+    font-weight:bold;
+}
+
+.koin{
+    border-radius: 100%;
+    background-color: #D3EBCD;
+    border-color: transparent;
+    font-size: 20px;
+}
+
+.listButton:active{
+    background-color: #839AA8;
+    color: white;
+    font-weight: bold;
+}
