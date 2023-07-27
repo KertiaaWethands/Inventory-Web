@@ -1,10 +1,6 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import {Layout} from './components/Layout';
-import {
-  Login, 
-  DaftarToko,
-  Transaksi,
-} from './pages'; 
+import { Layout } from './components/Layout';
+import { Login, DaftarToko, Transaksi,ProductInventory } from './pages'; 
 
 function App() {
   return (
@@ -14,8 +10,9 @@ function App() {
         <Route path="/transaksi" element={<Transaksi />} />
         <Route path="/*" element={<Layout />}>
           <Route path="daftar-toko" element={<DaftarToko />} />
-          {/* Rute lain yang Anda miliki */}
+          <Route path="product-inventory" element={<ProductInventory />} />
         </Route>
+
       </Routes>
     </Router>
   );
