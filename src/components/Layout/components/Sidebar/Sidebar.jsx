@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import LogoImage from '../../../../img/Logo.svg';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -15,14 +16,11 @@ import styles from "./style.module.css";
 export const Sidebar = () => {
   return (
     <div className={styles.side}>
-            <img src={LogoImage} alt='Logo' className={styles.imgLogo}></img>
-            <div className={styles.containerKoin}>
-                Jumlah Koin <button className={styles.koin}>+</button>
-            </div>
+            <img src={LogoImage} alt='Logo' className={styles.imgLogo} ></img>
             <nav aria-label="main mailbox folders">
         <List>
           <ListItem disablePadding className={styles.listButton}>
-            <ListItemButton>
+            <ListItemButton component={Link} to="/">
               <ListItemIcon>
                 <HomeIcon />
               </ListItemIcon>
@@ -30,7 +28,7 @@ export const Sidebar = () => {
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding className={styles.listButton}>
-            <ListItemButton>
+            <ListItemButton component={Link} to="/some-route">
               <ListItemIcon>
                 <InventoryIcon/>
               </ListItemIcon>
@@ -38,31 +36,15 @@ export const Sidebar = () => {
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding className={styles.listButton}>
-            <ListItemButton>
+            <ListItemButton component={Link} to="/transaksi">
               <ListItemIcon>
                 <LocalAtmIcon/>
               </ListItemIcon>
               <ListItemText primary="Transaksi" />
             </ListItemButton>
           </ListItem>
-          <ListItem disablePadding className={styles.listButton}>
-            <ListItemButton component="a" href="#simple-list">
-              <ListItemIcon>
-                <ApprovalIcon/>
-              </ListItemIcon>
-              <ListItemText primary="Audit" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding className={styles.listButton}>
-            <ListItemButton>
-              <ListItemIcon>
-                <MenuBookIcon/>
-              </ListItemIcon>
-              <ListItemText primary="Pesanan" />
-            </ListItemButton>
-          </ListItem>
         </List>
       </nav>
-        </div>
+    </div>
   );
 }
