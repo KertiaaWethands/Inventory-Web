@@ -1,35 +1,26 @@
 .content{
-    margin: 50px;
+    margin-top: 20px;
+    margin-left: 50px;
 }
 
 .title{
     font-size: 50px;
     font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
 }
 .rowHead, .rowFooter{
     background-color: #AEDBCE;
 }
 
 .bodyContent{
-    margin-top: 50px;
+    margin-top: 10px;
     width: 900px;
     height: 600px;
 }
 .tabel{
     border-radius: 20px !important;
 }
-.pesanContainer {
-    width: 1000px;
-    margin-left: -230px;
-  }
-  .pesanContainer .tabel{
-    margin-left: 70px;
-  }
-  .pesananContainer {
-    width: 1000px;
-    margin-top: 50px;
-    margin-left: -230px;
-  }
-  .pesananContainer .tabel{
-    margin-left: 70px;
-  }
+  .buttonTambah{
+    margin-top: 10px;
+}

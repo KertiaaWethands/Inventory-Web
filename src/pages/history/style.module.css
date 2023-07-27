@@ -1,0 +1,24 @@
+.container{
+    margin: 50px;
+}
+.pesananContainer {
+    width: 1000px;
+    margin-top: 50px;
+  }
+  .pesananContainer .tabel{
+    margin-left: 70px;
+  }
+  .rowHead, .rowFooter{
+      background-color: #AEDBCE;
+  }
+  .tabel{
+    border-radius: 20px !important;
+    margin-left: 50px;
+}
+.title{
+    font-size: 50px;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 50px;
+    margin-bottom: 20px;
+}

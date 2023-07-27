@@ -1,5 +1,6 @@
 import styles from './style.module.css'; 
 import { TableFooter, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import Button from '@mui/material/Button';
 
 function createData(idBarang, nama, stok, actual, indicator, status) {
   return { idBarang, nama, stok, actual, indicator, status};
@@ -15,29 +16,23 @@ const rows = [
   createData('MKNC004','Nabati Coklat 2000', 300, 300, '< 100', 'Enough'),
   createData('MKNC005','Nabati Coklat 2000', 300, 300, '< 100', 'Enough'),
 ];
-function createData2(idBarang, nama, stok, tambah) {
-  return { idBarang, nama, stok, tambah};
-}
-
-const rows2 = [
-  createData2('MKNC003','Nabati Strawberry 2000', '100 Box', '200 Box'),
-  createData2('MKNC003','Nabati Strawberry 2000', '100 Box', '200 Box'),
-  createData2('MKNC003','Nabati Strawberry 2000', '100 Box', '200 Box'),
-];
-function createData3(idBarang, nama, tambah, SKU, company,status) {
-    return { idBarang, nama, tambah, SKU, company,status};
-  }
-  
-  const rows3 = [
-    createData3('MKNC003','Nabati Strawberry 2000', '100 Box', '052945123','Wings', 'On Progress'),
-    createData3('MKNC003','Nabati Strawberry 2000', '100 Box', '052945123','Wings', 'On Progress'),
-  ];
 
 export const ProductInventory = () => {
   return (
     <div className={styles.container}>
         <div className={styles.content}>
             <div className={styles.title}>Produk</div>
+            <div className={styles.buttonTambah}>
+                    <Button 
+                    style={{ background: 'linear-gradient(#D3EBCD, #B1E9A3)', 
+                    color:'#000000', 
+                    fontWeight:'bold',
+                    paddingLeft:'35px', paddingRight:'35px', 
+                    borderRadius:'100px',
+                    fontSize:'11px'}}>
+                        + Tambah
+                    </Button>
+                </div>
             <div className={styles.bodyContent}>
                 <TableContainer component={Paper} className={styles.tabel}>
                     <Table aria-label="simple table">
@@ -67,82 +62,6 @@ export const ProductInventory = () => {
                             <TableCell align="center">{row.actual}</TableCell>
                             <TableCell align="center">{row.indicator}</TableCell>
                             <TableCell align="center">{row.status}</TableCell>
-                            </TableRow>
-                        ))}
-                        </TableBody>
-                        <TableFooter className={styles.rowFooter}>
-                            <TableCell colSpan={6} align="right">A</TableCell>
-                        </TableFooter>
-                    </Table>
-                </TableContainer>
-            </div>
-            <div className={styles.pesanContainer}>
-                <h1 className={styles.pesan}>Pesan</h1>
-                <TableContainer component={Paper} className={styles.tabel}>
-                    <Table aria-label="simple table">
-                        <TableHead className={styles.rowHead}>
-                        <TableRow>
-                            <TableCell align="center" className={styles.headContent}>ID Barang</TableCell>
-                            <TableCell align="center" >Nama Barang</TableCell>
-                            <TableCell align="center">Stock&nbsp;(Box)</TableCell>
-                            <TableCell align="center">Tambah&nbsp;(Box)</TableCell>
-                        </TableRow>
-                        </TableHead>
-                        <TableBody>
-                        {rows2.map((row) => (
-                            <TableRow
-                            key={row.idBarang}
-                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                            >
-                            <TableCell component="th" scope="row" align="center">
-                                {row.idBarang}
-                            </TableCell>
-                            <TableCell component="th" scope="row" align="center">
-                                {row.nama}
-                            </TableCell>
-                            <TableCell align="center">{row.stok}</TableCell>
-                            <TableCell align="center">{row.tambah}</TableCell>
-                            </TableRow>
-                        ))}
-                        </TableBody>
-                        <TableFooter className={styles.rowFooter}>
-                            <TableCell colSpan={4} align="right">A</TableCell>
-                        </TableFooter>
-                    </Table>
-                </TableContainer>
-            </div>
-            <div className={styles.pesananContainer}>
-                <h1 className={styles.pesan}>Pesanan</h1>
-                <TableContainer component={Paper} className={styles.tabel}>
-                    <Table aria-label="simple table">
-                        <TableHead className={styles.rowHead}>
-                        <TableRow>
-                            <TableCell align="center" className={styles.headContent}>ID Barang</TableCell>
-                            <TableCell align="center" >Nama Barang</TableCell>
-                            <TableCell align="center">Tambah&nbsp;(Box)</TableCell>
-                            <TableCell align="center">SKU</TableCell>
-                            <TableCell align="center">Company</TableCell>
-                            <TableCell align="center">Status</TableCell>
-                            
-                        </TableRow>
-                        </TableHead>
-                        <TableBody>
-                        {rows3.map((row) => (
-                            <TableRow
-                            key={row.idBarang}
-                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                            >
-                            <TableCell component="th" scope="row" align="center">
-                                {row.idBarang}
-                            </TableCell>
-                            <TableCell component="th" scope="row" align="center">
-                                {row.nama}
-                            </TableCell>
-                            <TableCell align="center">{row.tambah}</TableCell>
-                            <TableCell align="center">{row.SKU}</TableCell>
-                            <TableCell align="center">{row.company}</TableCell>
-                            <TableCell align="center">{row.status}</TableCell>
-                            
                             </TableRow>
                         ))}
                         </TableBody>

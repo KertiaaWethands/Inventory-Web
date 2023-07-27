@@ -11,6 +11,8 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import ApprovalIcon from '@mui/icons-material/Approval';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
+import PersonIcon from '@mui/icons-material/Person';
+import HistoryIcon from '@mui/icons-material/History';
 import styles from "./style.module.css";
 
 export const Sidebar = () => {
@@ -20,7 +22,7 @@ export const Sidebar = () => {
             <nav aria-label="main mailbox folders">
         <List>
           <ListItem disablePadding className={styles.listButton}>
-            <ListItemButton component={Link} to="/">
+            <ListItemButton component={Link} to="/product-inventory">
               <ListItemIcon>
                 <HomeIcon />
               </ListItemIcon>
@@ -28,7 +30,7 @@ export const Sidebar = () => {
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding className={styles.listButton}>
-            <ListItemButton component={Link} to="/some-route">
+            <ListItemButton component={Link} to="/pengembalian-barang">
               <ListItemIcon>
                 <InventoryIcon/>
               </ListItemIcon>
@@ -41,6 +43,22 @@ export const Sidebar = () => {
                 <LocalAtmIcon/>
               </ListItemIcon>
               <ListItemText primary="Transaksi" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding className={styles.listButton}>
+            <ListItemButton component={Link} to="/history">
+              <ListItemIcon>
+                <HistoryIcon/>
+              </ListItemIcon>
+              <ListItemText primary="History" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding className={styles.listButtonLogin}>
+            <ListItemButton component={Link} to="/">
+              <ListItemIcon>
+                <PersonIcon/>
+              </ListItemIcon>
+              <ListItemText primary="Login" />
             </ListItemButton>
           </ListItem>
         </List>

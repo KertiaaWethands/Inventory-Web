@@ -12,20 +12,6 @@
     padding-top: 20px;
 }
 
-.containerKoin{
-    text-align: center;
-    margin-top: 10px;
-    font-size: 20px;
-    font-weight:bold;
-}
-
-.koin{
-    border-radius: 100%;
-    background-color: #D3EBCD;
-    border-color: transparent;
-    font-size: 20px;
-}
-
 .listButton:active{
     background-color: #839AA8;
     color: white;
