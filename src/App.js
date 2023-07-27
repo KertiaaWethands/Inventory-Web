@@ -3,6 +3,7 @@ import {Layout} from './components/Layout';
 import {
   Login, 
   DaftarToko,
+  Transaksi,
 } from './pages'; 
 
 function App() {
@@ -10,6 +11,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/transaksi" element={<Transaksi />} />
         <Route path="/*" element={<Layout />}>
           <Route path="daftar-toko" element={<DaftarToko />} />
           {/* Rute lain yang Anda miliki */}
