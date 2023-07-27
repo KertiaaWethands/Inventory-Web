@@ -25,7 +25,7 @@
 
 2. **Template Penamaan Cabang**: Cabang harus diberi nama `[Nama Pengembang]_[Nama Halaman]_[Nomor Perubahan]` (misalnya, `robby_DaftarToko_1`).
 
-3. **Template Penamaan Commit**: Pesan commit harus mengikuti template `[Nama Perubahan/Fitur]_[Tanggal Perubahan]` (misalnya, `DaftarTokoFiturLengkap_27072023`).
+3. **Template Penamaan Commit**: Pesan commit harus mengikuti template `[Nama Developer]_[Nama Perubahan/Fitur]_[Tanggal Perubahan]` (misalnya, `Robby_DaftarTokoFiturLengkap_27072023`).
 
 4. **Aturan Tambahan**: isi deskripsinya adalah menjelaskan apa saja perubahan yg dilakukan
 
