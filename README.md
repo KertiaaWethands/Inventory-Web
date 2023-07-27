@@ -27,6 +27,8 @@
 
 3. **Template Penamaan Commit**: Pesan commit harus mengikuti template `[Nama Perubahan/Fitur]_[Tanggal Perubahan]` (misalnya, `DaftarTokoFiturLengkap_27072023`).
 
-4. 3. **Deskripsi Harus diisi**: isi descripnya adalah menjelaskan apa saja perubahan yg dilakukan
+4. **Aturan Tambahan**: isi deskripsinya adalah menjelaskan apa saja perubahan yg dilakukan
+
+5. **Aturan Tambahan**: selalu pull main sebelum merge req dan berkabar setelah merge req
 
 Patuhi aturan dan konvensi ini untuk memastikan kerjasama yang lancar dan komunikasi yang jelas dalam tim. Selamat coding!
