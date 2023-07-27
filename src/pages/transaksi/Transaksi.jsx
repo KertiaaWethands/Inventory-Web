@@ -3,6 +3,6 @@ import styles from "./style.module.css";
 
 export const Transaksi = () => {
   return (
-    <h1>aaa</h1>
+    <h1>Titit</h1>
   );
 }
