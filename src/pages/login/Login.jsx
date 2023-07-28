@@ -12,11 +12,11 @@ export const Login = () => {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post('http://localhost:4000/user/login', {
+      const response = await axios.post('http://localhost:4000/login', {
         username,
         password
       });
-
+    
       if (response.data.success) {
         alert('Login successful');
         navigate('/product-inventory'); // redirect ke halaman utama

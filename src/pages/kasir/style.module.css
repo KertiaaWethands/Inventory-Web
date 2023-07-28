@@ -2,7 +2,6 @@
     margin-top: 20px;
     position: fixed !important;
     top:80% !important;
-
     background-color: aqua;
 
 }
@@ -11,7 +10,7 @@
     font-size: 50px;
     font-weight: bold;
     text-align: center;
-    margin-top: 50px;
+    margin-top: 20px;
     margin-bottom: 20px;
 }
 .headTable{
@@ -38,7 +37,7 @@
 .containerKasir{
     background-color: #AEDBCE;
     border-radius: 20px;
-    padding: 0px 20px 15px 20px !important;
+    padding: 0px 20px 15px!important;
     margin-top: 35px;
 }
 
@@ -50,11 +49,8 @@
     margin-bottom: 0px !important;
     align-items: center;
 }
-.boxTable{
-    margin: 50px;
-}
 .box{
-    padding: 15px 10px 15px 10px !important;
+    padding: 15px 10px 15px !important;
     background-color: white !important;
     text-align: center;
     align-content: center;

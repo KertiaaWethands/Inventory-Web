@@ -24,7 +24,7 @@ export const History = () => {
                             <TableCell align="center" className={styles.headContent}>ID Barang</TableCell>
                             <TableCell align="center" >Tanggal</TableCell>
                             <TableCell align="center" >Nama Barang</TableCell>
-                            <TableCell align="center">Tambah&nbsp;(Box)</TableCell>
+                            <TableCell align="center">Jumlah&nbsp;(Box)</TableCell>
                             <TableCell align="center">SKU</TableCell>
                             <TableCell align="center">Company</TableCell>
                             <TableCell align="center">Status</TableCell>

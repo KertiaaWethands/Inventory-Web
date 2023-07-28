@@ -35,9 +35,9 @@ export const Kasir = () => {
   return (
     <Box className={styles.container} position="relative">
       <div className={styles.title}>Kasir</div>
-      <Box sx={{minHeight: '56vh'}} classNames={styles.boxTable}>
+      <Box sx={{minHeight: '40vh'}} classNames={styles.boxTable}>
         <TableContainer component={Paper} sx={{ maxHeight: '56vh', borderTopLeftRadius: "20px", borderTopRightRadius: "20px"}}>
-          <Table stickyHeader sx={{ minWidth: 650, "& .MuiTableCell-head": {
+          <Table stickyHeader sx={{ minWidth: 450, "& .MuiTableCell-head": {
               backgroundColor: "#AEDBCE"
           }, }} 
             // sx={{ }}
