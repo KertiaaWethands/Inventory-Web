@@ -24,8 +24,3 @@
   .buttonTambah{
     margin-top: 10px;
 }
-.rowLink {
-    text-decoration: none; /* Menghilangkan garis bawah (underline) pada link */
-    color: inherit; /* Mewarisi warna dari parent element */
-    cursor: pointer; /* Menampilkan kursor tangan saat pointer diarahkan ke link */
-  }

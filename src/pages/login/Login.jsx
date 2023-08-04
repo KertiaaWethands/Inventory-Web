@@ -1,31 +1,28 @@
 import React, { useState } from 'react';
 import { Container, FormControl, TextField, Button } from "@mui/material";
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axios from 'axios'; // Import axios
 import styles from "./style.module.css";
 import { SectionImage } from "../../components/SectionImage";
 
 export const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
-    try {
-      const response = await axios.post('http://localhost:4000/login', {
-        username,
-        password
+  const handleLogin = () => {
+    axios.post('http://localhost:8000/login', { username, password })
+      .then((response) => {
+        console.log(response.data.message); // Display login status (success/failure)
+        // Redirect to product-inventory page upon successful login
+        if (response.data.message === 'Login successful') {
+          navigate('/product-inventory'); // Redirect to the product-inventory page
+        }
+      })
+      .catch((error) => {
+        console.error(error);
       });
-    
-      if (response.data.success) {
-        alert('Login successful');
-        navigate('/product-inventory'); // redirect ke halaman utama
-      } else {
-        alert('Login failed');
-      }
-    } catch (error) {
-      alert('An error occurred while logging in');
-    }
   };
 
   return (
@@ -42,10 +39,10 @@ export const Login = () => {
             label="Username"
             variant="outlined"
             fullWidth
-            value={username}
-            onChange={e => setUsername(e.target.value)}
             InputProps={{ style: { background: 'white' }}}
             InputLabelProps={{ style: { fontWeight: 'bold', color: 'black'} }}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
           />
 
           <TextField 
@@ -54,17 +51,17 @@ export const Login = () => {
             label="Password"
             variant="outlined"
             fullWidth
-            value={password}
-            onChange={e => setPassword(e.target.value)}
             InputProps={{ style: { background: 'white' }}}
             InputLabelProps={{ style: { fontWeight: 'bold', color: 'Black' }}}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
 
           <Button
             className={styles.button}
             style={{ alignSelf: "flex-center", paddingInline: "40px" }}
             variant="contained"
-            onClick={handleLogin}
+            onClick={handleLogin} // Add onClick event handler to call handleLogin
           >
             Masuk
           </Button>
