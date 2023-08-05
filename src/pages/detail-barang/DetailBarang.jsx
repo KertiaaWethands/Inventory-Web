@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import styles from './style.module.css';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import styles from "./style.module.css";
+import { useParams } from "react-router-dom";
 import {
   TableFooter,
   Table,
@@ -11,8 +11,8 @@ import {
   TableHead,
   TableRow,
   Paper,
-} from '@mui/material';
-import { Pagination } from '../../components/Pagination';
+} from "@mui/material";
+import { Pagination } from "../../components/Pagination";
 
 export const DetailBarang = () => {
   const [product, setProduct] = useState(null);
@@ -24,28 +24,33 @@ export const DetailBarang = () => {
   useEffect(() => {
     fetchData();
   }, [idBarang]);
-  
+
   const fetchData = async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/products/${idBarang}`);
+      const response = await axios.get(
+        `http://localhost:8000/products/${idBarang}/skus`
+      );
       const productData = response.data.data;
-  
+      console.log(productData);
+
       // Format the date before setting it in the state
       const formattedProductData = {
-        ...productData,
-        skus: productData.skus.map((sku) => ({
+        nama: productData[0].nama,
+        idBarang: productData[0].idBarang,
+        skus: productData.map((sku) => ({
           ...sku,
           productionDate: new Date(sku.productionDate).toLocaleDateString(),
           expiredDate: new Date(sku.expiredDate).toLocaleDateString(),
           inboundDate: new Date(sku.inboundDate).toLocaleDateString(),
         })),
       };
-  
+
+      console.log(formattedProductData);
       setProduct(formattedProductData);
       setError(null); // Reset the error state if the fetch is successful
     } catch (error) {
-      console.error('Error fetching product:', error);
-      setError('Error fetching product. Please try again later.');
+      console.error("Error fetching product:", error);
+      setError("Error fetching product. Please try again later.");
     }
   };
 
@@ -62,7 +67,7 @@ export const DetailBarang = () => {
               {product.skus && product.skus.length > 0 ? (
                 <div>
                   <h3>SKUs:</h3>
-                  <TableContainer component={Paper}className={styles.tabel}>
+                  <TableContainer component={Paper} className={styles.tabel}>
                     <Table>
                       <TableHead className={styles.rowHead}>
                         <TableRow>
@@ -76,7 +81,10 @@ export const DetailBarang = () => {
                       </TableHead>
                       <TableBody>
                         {product.skus
-                          .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                          .slice(
+                            page * rowsPerPage,
+                            page * rowsPerPage + rowsPerPage
+                          )
                           .map((sku) => (
                             <TableRow key={sku.idSKU}>
                               <TableCell>{sku.idSKU}</TableCell>
@@ -88,25 +96,28 @@ export const DetailBarang = () => {
                             </TableRow>
                           ))}
                       </TableBody>
-                    
-                  
-                  <TableFooter className={styles.rowFooter}>
-                    <TableRow>
-                      <TableCell colSpan={6} align="right">
-                        <Pagination
-                          count={product.skus.length}
-                          rowsPerPage={rowsPerPage}
-                          page={page}
-                          onChangePage={(event, newPage) => setPage(newPage)}
-                          onChangeRowsPerPage={(event) => {
-                            setRowsPerPage(parseInt(event.target.value, 10));
-                            setPage(0);
-                          }}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  </TableFooter >
-                  </Table>
+
+                      <TableFooter className={styles.rowFooter}>
+                        <TableRow>
+                          <TableCell colSpan={6} align="right">
+                            <Pagination
+                              count={product.skus.length}
+                              rowsPerPage={rowsPerPage}
+                              page={page}
+                              onChangePage={(event, newPage) =>
+                                setPage(newPage)
+                              }
+                              onChangeRowsPerPage={(event) => {
+                                setRowsPerPage(
+                                  parseInt(event.target.value, 10)
+                                );
+                                setPage(0);
+                              }}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      </TableFooter>
+                    </Table>
                   </TableContainer>
                 </div>
               ) : (
