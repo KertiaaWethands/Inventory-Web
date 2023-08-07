@@ -89,3 +89,9 @@
     margin-top: 30px;
     border-radius: 10px;
 }
+.addButtonContainer {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 20px;
+  }
+  

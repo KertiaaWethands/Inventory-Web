@@ -1,46 +1,92 @@
 import * as React from 'react';
-
 import Button from '@mui/material/Button';
 import { Paper, Stack, Box, Grid, Container } from '@mui/material';
-
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import RemoveIcon from '@mui/icons-material/Remove';
-
-
 import styles from './style.module.css';
 
 export const Kasir = () => {
   function createData(kode_barang, nama_barang, harga_satuan, jumlah) {
-    return { kode_barang, nama_barang, harga_satuan, jumlah};
+    return { kode_barang, nama_barang, harga_satuan, jumlah };
   }
-  
-  const datarows = [
-    createData('TKCJRD001', 'Royco @ 250g', 50000, 2),
-    createData('TKSKMD001', 'Rinso @ 1L', 45000, 2),
-    createData('TKCJRD001', 'Royco @ 250g', 50000, 2),
-    createData('TKSKMD001', 'Rinso @ 1L', 45000, 2),
-  ];
 
-  const separator = (num)  => {
+  const [datarows, setDatarows] = React.useState([
+    createData('TKCJRD001', 'Royco @ 250g', 50000, 2),
+    createData('TKSKMD001', 'Rinso @ 1L', 45000, 2),
+    createData('TKCJRD001', 'Royco @ 250g', 50000, 2),
+    createData('TKSKMD001', 'Rinso @ 1L', 45000, 2),
+  ]);
+
+  const separator = (num) => {
     let temp = num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     return temp;
   }
+
+  // State untuk menyimpan input dari popup
+  const [popupOpen, setPopupOpen] = React.useState(false);
+  const [kodeBarang, setKodeBarang] = React.useState('');
+  const [namaBarang, setNamaBarang] = React.useState('');
+  const [hargaSatuan, setHargaSatuan] = React.useState('');
+  const [jumlahBarang, setJumlahBarang] = React.useState('');
+
+  // Fungsi untuk membuka popup
+  const handleOpenPopup = () => {
+    setPopupOpen(true);
+  };
+
+  // Fungsi untuk menutup popup
+  const handleClosePopup = () => {
+    setPopupOpen(false);
+  };
+
+  // Fungsi untuk menambahkan data barang dari popup ke datarows
+  const handleTambahBarang = () => {
+    // Validasi jika ada input yang kosong atau harga dan jumlah tidak valid
+    if (!kodeBarang || !namaBarang || !hargaSatuan || !jumlahBarang || isNaN(hargaSatuan) || isNaN(jumlahBarang)) {
+      alert('Mohon isi semua data barang dengan benar.');
+      return;
+    }
+
+    const newData = createData(kodeBarang, namaBarang, parseInt(hargaSatuan), parseInt(jumlahBarang));
+    setDatarows([...datarows, newData]);
+    handleClosePopup();
+  };
 
 
   return (
     <Box className={styles.container} position="relative">
       <div className={styles.title}>Kasir</div>
-      <Box sx={{minHeight: '40vh'}} classNames={styles.boxTable}>
-        <TableContainer component={Paper} sx={{ maxHeight: '56vh', borderTopLeftRadius: "20px", borderTopRightRadius: "20px"}}>
-          <Table stickyHeader sx={{ minWidth: 450, "& .MuiTableCell-head": {
+
+      {/* Tombol Tambah Barang */}
+      <div className={styles.addButtonContainer}>
+        <Button
+          variant="contained"
+          style={{
+            background: 'linear-gradient(#D3EBCD, #B1E9A3)',
+            color: '#000000',
+            fontWeight: 'bold',
+            paddingLeft: '35px',
+            paddingRight: '35px',
+            borderRadius: '100px',
+          }}
+          onClick={handleOpenPopup}
+        >
+          + Tambah
+        </Button>
+      </div>
+
+
+      <Box sx={{ minHeight: '40vh' }} classNames={styles.boxTable}>
+        <TableContainer component={Paper} sx={{ maxHeight: '56vh', borderTopLeftRadius: "20px", borderTopRightRadius: "20px" }}>
+          <Table stickyHeader sx={{
+            minWidth: 450, "& .MuiTableCell-head": {
               backgroundColor: "#AEDBCE"
-          }, }} 
-            // sx={{ }}
+            },
+          }}
           >
             <TableHead >
               <TableRow >
@@ -55,7 +101,7 @@ export const Kasir = () => {
             <TableBody>
               {datarows.map((row, i) => (
                 <TableRow
-                  key={row.name}
+                  key={row.kode_barang}
                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                 >
                   <TableCell align='center' width="20">{i + 1}</TableCell>
@@ -64,7 +110,7 @@ export const Kasir = () => {
                     {row.nama_barang}
                   </TableCell>
                   <TableCell align='center' width="150">Rp. {separator(row.harga_satuan)} </TableCell>
-                  <TableCell align='center' width="20"><div className={styles.jumlahBadge}>{row.jumlah}</div></TableCell>
+                  <TableCell align='center' width="20">{row.jumlah}</TableCell>
                   <TableCell align='center' width="150">Rp. {separator(row.harga_satuan * row.jumlah)}</TableCell>
                 </TableRow>
               ))}
@@ -111,8 +157,42 @@ export const Kasir = () => {
       </Container>
       
       <button className={styles.beli}>Beli</button>
+        {/* Popup untuk menambahkan barang */}
+        {popupOpen && (
+        <div className={styles.popup}>
+          <div className={styles.popupContent}>
+            <span className={styles.closePopup} onClick={handleClosePopup}>&times;</span>
+            <h3>Tambah Barang</h3>
+            <input
+              type="text"
+              placeholder="Kode Barang"
+              value={kodeBarang}
+              onChange={(e) => setKodeBarang(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Nama Barang"
+              value={namaBarang}
+              onChange={(e) => setNamaBarang(e.target.value)}
+            />
+            <input
+              type="number"
+              placeholder="Harga Satuan"
+              value={hargaSatuan}
+              onChange={(e) => setHargaSatuan(e.target.value)}
+            />
+            <input
+              type="number"
+              placeholder="Jumlah"
+              value={jumlahBarang}
+              onChange={(e) => setJumlahBarang(e.target.value)}
+            />
+            <button onClick={handleTambahBarang}>Tambah</button>
+          </div>
+        </div>
+      )}
 
     </Box>
-  
+
   );
 }

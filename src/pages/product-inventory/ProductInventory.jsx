@@ -41,6 +41,7 @@ export const ProductInventory = () => {
     try {
       const productsResponse = await axios.get('http://localhost:8000/products');
       const products = productsResponse.data.data;
+      console.log(productsResponse);
   
       if (Array.isArray(products)) {
         const productRows = await Promise.all(products.map(async (product) => {
@@ -80,6 +81,11 @@ export const ProductInventory = () => {
   };
 
   const handleOpenModal = () => {
+    // Clear the form input when opening the modal
+    setNewProduct({
+      nama: '',
+      indicator: '',
+    });
     setOpenModal(true);
   };
 
@@ -101,13 +107,6 @@ export const ProductInventory = () => {
       // Create a new row object for the new product and update the rows state
       const newRow = createData(response.data.data.idBarang, response.data.data.nama, totalStok, indicator, status);
       setRows([...rows, newRow]);
-      // Clear the form input
-      setNewProduct({
-        idBarang: '',
-        nama: '',
-        stok: 0,
-        indicator: '',
-      });
       handleCloseModal(); // Close the modal after adding a new product
     } catch (error) {
       console.error('Error adding new product:', error);
@@ -191,28 +190,15 @@ export const ProductInventory = () => {
         </div>
       </div>
 
-      {/* Modal Dialog for Add Product */}
-      <Dialog open={openModal} onClose={handleCloseModal}>
+       {/* Modal Dialog for Add Product */}
+       <Dialog open={openModal} onClose={handleCloseModal}>
         <DialogTitle>Tambah Produk Baru</DialogTitle>
         <DialogContent>
           <div className={styles.formContent}>
             <TextField
-              label="ID Barang"
-              name="idBarang"
-              value={newProduct.idBarang}
-              onChange={handleNewProductChange}
-            />
-            <TextField
               label="Nama Barang"
               name="nama"
               value={newProduct.nama}
-              onChange={handleNewProductChange}
-            />
-            <TextField
-              label="Stok"
-              name="stok"
-              type="number"
-              value={newProduct.stok}
               onChange={handleNewProductChange}
             />
             <TextField

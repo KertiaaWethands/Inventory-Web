@@ -31,12 +31,11 @@ export const DetailBarang = () => {
         `http://localhost:8000/products/${idBarang}/skus`
       );
       const productData = response.data.data;
-      console.log(productData);
+      console.log(productData.data);
 
       // Format the date before setting it in the state
       const formattedProductData = {
         nama: productData[0].nama,
-        idBarang: productData[0].idBarang,
         skus: productData.map((sku) => ({
           ...sku,
           productionDate: new Date(sku.productionDate).toLocaleDateString(),
@@ -132,3 +131,5 @@ export const DetailBarang = () => {
     </div>
   );
 };
+
+export default DetailBarang;
