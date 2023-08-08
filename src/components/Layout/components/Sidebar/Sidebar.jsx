@@ -18,8 +18,8 @@ import styles from "./style.module.css";
 export const Sidebar = () => {
   return (
     <div className={styles.side}>
-            <img src={LogoImage} alt='Logo' className={styles.imgLogo} ></img>
-            <nav aria-label="main mailbox folders">
+      <img src={LogoImage} alt='Logo' className={styles.imgLogo} />
+      <nav aria-label="main mailbox folders">
         <List>
           <ListItem disablePadding className={styles.listButton}>
             <ListItemButton component={Link} to="/product-inventory">
@@ -32,31 +32,31 @@ export const Sidebar = () => {
           <ListItem disablePadding className={styles.listButton}>
             <ListItemButton component={Link} to="/pengembalian-barang">
               <ListItemIcon>
-                <InventoryIcon/>
+                <InventoryIcon />
               </ListItemIcon>
               <ListItemText primary="Pengembalian Produk" />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding className={styles.listButton}>
-            <ListItemButton component={Link} to="/transaksi">
+            <ListItemButton component={Link} to="/history">
               <ListItemIcon>
-                <LocalAtmIcon/>
+                <HistoryIcon />
               </ListItemIcon>
-              <ListItemText primary="Transaksi" />
+              <ListItemText primary="History" />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding className={styles.listButton}>
-            <ListItemButton component={Link} to="/history">
+            <ListItemButton component={Link} to="/kasir">
               <ListItemIcon>
-                <HistoryIcon/>
+                <LocalAtmIcon /> {/* Use LocalAtmIcon for the "Kasir" icon */}
               </ListItemIcon>
-              <ListItemText primary="History" />
+              <ListItemText primary="Kasir" />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding className={styles.listButtonLogin}>
             <ListItemButton component={Link} to="/">
               <ListItemIcon>
-                <PersonIcon/>
+                <PersonIcon />
               </ListItemIcon>
               <ListItemText primary="Login" />
             </ListItemButton>

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import styles from "./style.module.css";
+import React, { useState, useEffect } from 'react';
+import styles from './style.module.css';
 import {
   TableFooter,
   Table,
@@ -12,14 +12,14 @@ import {
   MenuItem,
   FormControl,
   Select,
-} from "@mui/material";
-import Button from "@mui/material/Button";
-import axios from "axios";
+} from '@mui/material';
+import Button from '@mui/material/Button';
+import axios from 'axios';
 
 export const PengembalianBarang = () => {
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState("");
-  const [skusForSelectedProduct, setSkusForSelectedProduct] = useState([]);
+  const [skusForSelectedProduct, setSkusForSelectedProduct] = useState(null); // Change the initial state
   const [jumlah, setJumlah] = useState("");
   const [alasan, setAlasan] = useState("");
   const [selectedSkuCode, setSelectedSkuCode] = useState("");
@@ -31,11 +31,11 @@ export const PengembalianBarang = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/products");
+      const response = await axios.get('http://localhost:8000/products');
       const productsData = response.data.data;
       setProducts(productsData);
     } catch (error) {
-      console.error("Error fetching products:", error);
+      console.error('Error fetching products:', error);
     }
   };
 
@@ -44,21 +44,28 @@ export const PengembalianBarang = () => {
     setSelectedProduct(selectedProductId);
     const product = products.find((p) => p.idBarang === selectedProductId);
     if (product) {
-      // Fetch SKUs for the selected product from the server
       try {
         const response = await axios.get(
           `http://localhost:8000/products/${selectedProductId}/skus`
         );
         const skusData = response.data.data;
+        console.log(skusData);
         setSkusForSelectedProduct(skusData);
-        setSelectedSkuCode(skusData[0]?.skuCode || "");
+        setSelectedSkuCode(skusData.length > 0 ? skusData[0]?.skuCode : "");
+        setSelectedSkuId(skusData.length > 0 ? skusData[0]?.idSKU : "");
       } catch (error) {
         console.error("Error fetching SKUs:", error);
-        setSkusForSelectedProduct([]);
+        setSkusForSelectedProduct([]); // Set to empty array in case of error
         setSelectedSkuCode("");
+        setSelectedSkuId("");
       }
+    } else {
+      setSkusForSelectedProduct([]); // Set to empty array if no product is selected
+      setSelectedSkuCode("");
+      setSelectedSkuId("");
     }
   };
+  
 
   const handleJumlahChange = (event) => {
     setJumlah(event.target.value);
@@ -67,7 +74,6 @@ export const PengembalianBarang = () => {
   const handleAlasanChange = (event) => {
     setAlasan(event.target.value);
   };
-
   const handleReturn = async () => {
     try {
       const requestData = {
@@ -76,22 +82,25 @@ export const PengembalianBarang = () => {
         jumlah: jumlah,
         alasan: alasan,
       };
-
-      console.log({ requestData });
-      await axios.post("http://localhost:8000/return-items", requestData);
-      alert("Return item added successfully");
+      const response = await axios.post('http://localhost:8000/return-items', requestData);
+      if (response.status === 200) {
+        alert('Return item added successfully');
+        // Update the frontend display if needed
+        // For example, you might refresh the product list or adjust the SKU stock display
+      }
     } catch (error) {
-      console.error("Error adding return item:", error);
+      console.error('Error adding return item:', error);
       if (error.response && error.response.data) {
         const responseData = error.response.data;
-        console.log("Failed data:", responseData);
-        console.log("Failed message:", responseData.message);
+        console.log('Failed data:', responseData);
+        console.log('Failed message:', responseData.message);
         // You can display the error message or take any other action as needed.
       }
-      alert("Error adding return item. Please try again later.");
+      alert('Error adding return item. Please try again later.');
     }
   };
-
+  
+  
   return (
     <div className={styles.content}>
       <div className={styles.title}>Pengembalian Barang</div>
@@ -99,12 +108,12 @@ export const PengembalianBarang = () => {
         <div className={styles.buttonTambah}>
           <Button
             style={{
-              background: "linear-gradient(#D3EBCD, #B1E9A3)",
-              color: "#000000",
-              fontWeight: "bold",
-              paddingLeft: "35px",
-              paddingRight: "35px",
-              borderRadius: "100px",
+              background: 'linear-gradient(#D3EBCD, #B1E9A3)',
+              color: '#000000',
+              fontWeight: 'bold',
+              paddingLeft: '35px',
+              paddingRight: '35px',
+              borderRadius: '100px',
             }}
           >
             + Tambah
@@ -130,11 +139,11 @@ export const PengembalianBarang = () => {
                   <FormControl sx={{ minWidth: 200 }}>
                     <Select
                       displayEmpty
-                      inputProps={{ "aria-label": "Without label" }}
+                      inputProps={{ 'aria-label': 'Without label' }}
                       style={{
-                        borderRadius: "150px",
-                        height: "35px",
-                        backgroundColor: "#D3EBCD",
+                        borderRadius: '150px',
+                        height: '35px',
+                        backgroundColor: '#D3EBCD',
                       }}
                       value={selectedProduct}
                       onChange={handleProductChange}
@@ -143,10 +152,7 @@ export const PengembalianBarang = () => {
                         <em>None</em>
                       </MenuItem>
                       {products.map((product) => (
-                        <MenuItem
-                          key={product.idBarang}
-                          value={product.idBarang}
-                        >
+                        <MenuItem key={product.idBarang} value={product.idBarang}>
                           {product.nama}
                         </MenuItem>
                       ))}
@@ -154,49 +160,49 @@ export const PengembalianBarang = () => {
                   </FormControl>
                 </TableCell>
                 <TableCell component="th" scope="row">
-                  <FormControl sx={{ minWidth: 200 }}>
-                    <Select
-                      displayEmpty
-                      inputProps={{ "aria-label": "Without label" }}
-                      style={{
-                        borderRadius: "150px",
-                        height: "35px",
-                        backgroundColor: "#D3EBCD",
-                      }}
-                      value={selectedSkuCode}
-                      onChange={(event) =>
-                        setSelectedSkuCode(event.target.value)
-                      }
-                    >
-                      {skusForSelectedProduct.map((sku) => (
-                        <MenuItem
-                          key={sku.idSKU}
-                          name={sku.idSKU}
-                          value={sku.skuCode}
-                          onClick={() => setSelectedSkuId(sku.idSKU)}
-                        >
-                          {sku.skuCode}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </TableCell>
+        <FormControl sx={{ minWidth: 200 }}>
+          <Select
+            displayEmpty
+            inputProps={{ 'aria-label': 'Without label' }}
+            style={{
+              borderRadius: '150px',
+              height: '35px',
+              backgroundColor: '#D3EBCD',
+            }}
+            value={selectedSkuCode}
+            onChange={(event) => setSelectedSkuCode(event.target.value)}
+          >
+            {skusForSelectedProduct == null ? (
+              <MenuItem disabled>Loading SKUs...</MenuItem>
+            ) : skusForSelectedProduct.length === 0 ? (
+              <MenuItem disabled>No SKUs added</MenuItem>
+            ) : (
+              skusForSelectedProduct.skus.map((sku) => ( // Note the change here
+                <MenuItem
+                  key={sku.idSKU}
+                  name={sku.idSKU}
+                  value={sku.skuCode}
+                  onClick={() => setSelectedSkuId(sku.idSKU)}
+                >
+                  {sku.skuCode}
+                </MenuItem>
+              ))
+            )}
+          </Select>
+        </FormControl>
+      </TableCell>
                 <TableCell align="center">
-                  <input
-                    type="text"
-                    value={jumlah}
-                    onChange={handleJumlahChange}
-                  />
+                  <input type="text" value={jumlah} onChange={handleJumlahChange} />
                 </TableCell>
                 <TableCell align="center">
                   <FormControl sx={{ minWidth: 350 }}>
                     <Select
                       displayEmpty
-                      inputProps={{ "aria-label": "Without label" }}
+                      inputProps={{ 'aria-label': 'Without label' }}
                       style={{
-                        borderRadius: "150px",
-                        height: "35px",
-                        backgroundColor: "#D3EBCD",
+                        borderRadius: '150px',
+                        height: '35px',
+                        backgroundColor: '#D3EBCD',
                       }}
                       value={alasan}
                       onChange={handleAlasanChange}
@@ -217,12 +223,12 @@ export const PengembalianBarang = () => {
                 <Button
                   variant="contained"
                   style={{
-                    backgroundColor: "#04D700",
-                    color: "#FFFFFF",
-                    fontWeight: "bold",
-                    paddingLeft: "25px",
-                    paddingRight: "25px",
-                    borderRadius: "12px",
+                    backgroundColor: '#04D700',
+                    color: '#FFFFFF',
+                    fontWeight: 'bold',
+                    paddingLeft: '25px',
+                    paddingRight: '25px',
+                    borderRadius: '12px',
                   }}
                   onClick={handleReturn}
                 >

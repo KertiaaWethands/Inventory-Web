@@ -1,6 +1,7 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import Button from '@mui/material/Button';
-import { Paper, Stack, Box, Grid, Container } from '@mui/material';
+import { Paper, Box, Container, Dialog, DialogTitle, DialogContent, TextField, DialogActions, FormControl, InputLabel, Select, MenuItem, Grid } from '@mui/material';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -10,189 +11,333 @@ import TableRow from '@mui/material/TableRow';
 import styles from './style.module.css';
 
 export const Kasir = () => {
-  function createData(kode_barang, nama_barang, harga_satuan, jumlah) {
-    return { kode_barang, nama_barang, harga_satuan, jumlah };
+  const [datarows, setDatarows] = React.useState([]); // State to store fetched data
+  const [productOptions, setProductOptions] = React.useState([]); // State to store product options for the select field
+  const [selectedProduct, setSelectedProduct] = React.useState(''); // Initialize with an empty string
+
+  const [quantity, setQuantity] = React.useState(0);
+  const [totalPrice, setTotalPrice] = React.useState(0);
+  const [openModal, setOpenModal] = React.useState(false);
+  
+
+  // Fetch data when the component mounts
+  React.useEffect(() => {
+    fetchKasirData();
+    fetchProductOptions();
+  }, []);
+
+  const fetchKasirData = () => {
+    axios.get('http://localhost:8000/kasir')
+      .then(response => {
+        setDatarows(response.data.data);
+      })
+      .catch(error => {
+        console.error('Error fetching kasir data:', error);
+      });
+  };
+  const [transactionData, setTransactionData] =useState({
+    idHistory: '',
+    tanggal: '',
+    idBarang: '',
+    jumlah: 0,
+    idSKU: '',
+    idTransaksi: '',
+    jenisTransaksi: 'transaction', // Jenis transaksi "transaction"
+  });
+  const handleBeliClick = async () => {
+    try {
+      if (datarows.length === 0) {
+        console.error('No products in the table to add.');
+        return;
+      }
+  
+      const currentDate = new Date().toISOString().split('T')[0]; // Get the current date
+      const idTransaksi = await fetchLatestIdTransaksi();
+  
+      if (idTransaksi === null) {
+        console.error('No transactions found.');
+        return;
+      }
+  
+      const historyItems = datarows.map(async (row) => {
+        const idSKU = await fetchIdSKU(row['idSKU']);
+        if (idSKU === null) {
+          console.error(`ID SKU not found for product: ${row['idSKU']}`);
+          return null;
+        }
+  
+        return {
+          tanggal: currentDate,
+          jumlah: row['Jumlah'],
+          idBarang: row['Kode Barang'],
+          idSKU: row['idSKU'],
+          idTransaksi: row['idTransaksi'],
+          jenisTransaksi: 'transaction',
+        };
+      });
+      const transactionItems = datarows.map(row => ({
+        tanggal: currentDate,
+        jumlah: row['Jumlah'],
+        idBarang: row['Kode Barang'],
+        idSKU: row['idSKU'],
+        idTransaksi: idTransaksi, // Use the idTransaksi you fetched or generated
+        jenisTransaksi: 'transaction',
+      }));
+      const validHistoryItems = await Promise.all(historyItems);
+      const filteredHistoryItems = validHistoryItems.filter(item => item !== null); // Remove null items
+  
+      if (filteredHistoryItems.length === 0) {
+        console.error('No valid history items to add.');
+        return;
+      }
+  
+      const response = await axios.post('http://localhost:8000/insert-history', {
+        items: filteredHistoryItems,
+      });
+  
+      if (response.status === 500) {
+        console.log('Transaction added to history successfully.', response);
+        setDatarows([]); // Clear the table after adding to history
+        fetchKasirData(); // Refresh the table
+      } else {
+        console.error('Error adding transactions to history:', response.data.error);
+      }
+    } catch (error) {
+      console.error('Error adding transactions to history:', error);
+    }
+  };
+const fetchLatestIdTransaksi = async () => {
+  try {
+    const response = await axios.get('http://localhost:8000/kasir');
+    if (response.data.data.length > 0) {
+      const latestTransaksi = response.data.data[response.data.data.length - 1];
+      return latestTransaksi.idTransaksi; // Return the latest idTransaksi from kasir table
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching latest idTransaksi:', error);
+    return null;
   }
+};
 
-  const [datarows, setDatarows] = React.useState([
-    createData('TKCJRD001', 'Royco @ 250g', 50000, 2),
-    createData('TKSKMD001', 'Rinso @ 1L', 45000, 2),
-    createData('TKCJRD001', 'Royco @ 250g', 50000, 2),
-    createData('TKSKMD001', 'Rinso @ 1L', 45000, 2),
-  ]);
-
+  const fetchOldestInboundDate = async (idSKU) => {
+    try {
+      const response = await axios.get(`http://localhost:8000/products/oldest/${idSKU}`);
+      return response.data.inboundDate; // Return the oldest inboundDate
+    } catch (error) {
+      console.error('Error fetching oldest inboundDate:', error);
+      return null;
+    }
+  };
+  
+  
+  const fetchIdSKU = async (productName) => {
+    try {
+      const response = await axios.get(`http://localhost:8000/products/idSKU/${productName}`);
+      return response.data.idSKU;
+    } catch (error) {
+      console.error('Error fetching idSKU:', error);
+      return null;
+    }
+  }
+  const fetchProductOptions = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/products');
+      const productsData = response.data.data;
+      setProductOptions(productsData);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    }
+  };
+  
+  
   const separator = (num) => {
+    if (num === undefined) {
+      return ''; // Return an empty string if num is undefined
+    }
+    
     let temp = num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     return temp;
-  }
+  };
+  
+const handleProductChange = (event) => {
+  const selectedProductId = event.target.value;
+  setSelectedProduct(selectedProductId);
 
-  // State untuk menyimpan input dari popup
-  const [popupOpen, setPopupOpen] = React.useState(false);
-  const [kodeBarang, setKodeBarang] = React.useState('');
-  const [namaBarang, setNamaBarang] = React.useState('');
-  const [hargaSatuan, setHargaSatuan] = React.useState('');
-  const [jumlahBarang, setJumlahBarang] = React.useState('');
+  // Update the idSKU in the transactionData state
+  setTransactionData((prevData) => ({
+    ...prevData,
+    idSKU: selectedProductId,
+  }));
+};
 
-  // Fungsi untuk membuka popup
-  const handleOpenPopup = () => {
-    setPopupOpen(true);
+  const handleQuantityChange = (event) => {
+    const newQuantity = parseInt(event.target.value);
+    setQuantity(newQuantity);
+  
+    // Find the selected product based on its idBarang
+    const selectedProductOption = productOptions.find(option => option.idBarang === selectedProduct);
+  
+    // Calculate the new total price based on the selected product's harga (price)
+    const newTotalPrice = selectedProductOption.harga * newQuantity;
+    setTotalPrice(newTotalPrice);
+  };
+  
+  
+
+  const handleOpenModal = () => {
+    setOpenModal(true);
   };
 
-  // Fungsi untuk menutup popup
-  const handleClosePopup = () => {
-    setPopupOpen(false);
+  const handleCloseModal = () => {
+    setOpenModal(false);
   };
-
-  // Fungsi untuk menambahkan data barang dari popup ke datarows
-  const handleTambahBarang = () => {
-    // Validasi jika ada input yang kosong atau harga dan jumlah tidak valid
-    if (!kodeBarang || !namaBarang || !hargaSatuan || !jumlahBarang || isNaN(hargaSatuan) || isNaN(jumlahBarang)) {
-      alert('Mohon isi semua data barang dengan benar.');
-      return;
+  const handleAddProduct = async () => {
+    if (selectedProduct && quantity > 0) {
+      try {
+        const selectedProductOption = productOptions.find(
+          option => option.idBarang === selectedProduct
+        );
+  
+        // Retrieve the oldest idSKU based on inboundDate for the selected product
+        const oldestInboundSKU = await axios.get(
+          `http://localhost:8000/products/oldest/${selectedProduct}`
+        );
+  
+        if (oldestInboundSKU.data.idSKU !== null) {
+          const response = await axios.post('http://localhost:8000/kasir', {
+            idKasir: datarows.length + 1,
+            jumlah: quantity,
+            idSKU: oldestInboundSKU.data.idSKU,
+          });
+  
+          if (response.status === 200) {
+            // Close the modal
+            handleCloseModal();
+  
+            // Call fetchKasirData to update the table with the latest data
+            fetchKasirData();
+          } else {
+            console.error('Error adding product to kasir:', response.data.error);
+          }
+        } else {
+          console.error('No available product with inboundDate found.');
+        }
+      } catch (error) {
+        console.error('Error adding product to kasir:', error);
+      }
     }
-
-    const newData = createData(kodeBarang, namaBarang, parseInt(hargaSatuan), parseInt(jumlahBarang));
-    setDatarows([...datarows, newData]);
-    handleClosePopup();
   };
-
-
+  
+  
+  
   return (
     <Box className={styles.container} position="relative">
-      <div className={styles.title}>Kasir</div>
+    <div className={styles.title}>Kasir</div>
 
-      {/* Tombol Tambah Barang */}
-      <div className={styles.addButtonContainer}>
-        <Button
-          variant="contained"
-          style={{
-            background: 'linear-gradient(#D3EBCD, #B1E9A3)',
-            color: '#000000',
-            fontWeight: 'bold',
-            paddingLeft: '35px',
-            paddingRight: '35px',
-            borderRadius: '100px',
-          }}
-          onClick={handleOpenPopup}
-        >
-          + Tambah
-        </Button>
-      </div>
+    <div className={styles.addButtonContainer}>
+      <Button
+        variant="contained"
+        style={{
+          background: 'linear-gradient(#D3EBCD, #B1E9A3)',
+          color: '#000000',
+          fontWeight: 'bold',
+          paddingLeft: '35px',
+          paddingRight: '35px',
+          borderRadius: '100px',
+        }}
+        onClick={handleOpenModal}
+      >
+        + Tambah
+      </Button>
+    </div>
+
+    <Box sx={{ minHeight: '40vh' }} classNames={styles.boxTable}>
+      <TableContainer component={Paper} sx={{ maxHeight: '56vh', borderTopLeftRadius: "20px", borderTopRightRadius: "20px" }}>
+        <Table stickyHeader sx={{
+          minWidth: 450, "& .MuiTableCell-head": {
+            backgroundColor: "#AEDBCE"
+          },
+        }}>
+          <TableHead>
+            <TableRow>
+              <TableCell align='center'>No</TableCell>
+              <TableCell align='center'>Kode Barang</TableCell>
+              <TableCell align='center'>Nama Barang</TableCell>
+              <TableCell align='center'>Harga Satuan</TableCell>
+              <TableCell align='center'>Jumlah</TableCell>
+              <TableCell align='center'>Harga</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {datarows.map((row, i) => (
+              <TableRow
+                key={row.idKasir}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+              >
+                <TableCell align='center' width="20">{i + 1}</TableCell>
+                <TableCell align='center' width="100">{row['Kode Barang']}</TableCell>
+                <TableCell align='center' component="th" scope="row">
+                  {row['Nama Barang']}
+                </TableCell>
+                <TableCell align='center' width="150">
+                  {row['Harga Satuan'] ? `Rp. ${separator(row['Harga Satuan']?.toString())}` : ''}
+                </TableCell>
+                <TableCell align='center' width="20">{row['Jumlah']}</TableCell>
+                <TableCell align='center' width="150">
+                  {row['Harga'] ? `Rp. ${separator(row['Harga']?.toString())}` : ''}
+                </TableCell>
 
 
-      <Box sx={{ minHeight: '40vh' }} classNames={styles.boxTable}>
-        <TableContainer component={Paper} sx={{ maxHeight: '56vh', borderTopLeftRadius: "20px", borderTopRightRadius: "20px" }}>
-          <Table stickyHeader sx={{
-            minWidth: 450, "& .MuiTableCell-head": {
-              backgroundColor: "#AEDBCE"
-            },
-          }}
-          >
-            <TableHead >
-              <TableRow >
-                <TableCell align='center'>No</TableCell>
-                <TableCell align='center'>Kode Barang</TableCell>
-                <TableCell align='center'>Nama Barang</TableCell>
-                <TableCell align='center'>Harga Satuan</TableCell>
-                <TableCell align='center'>Jumlah</TableCell>
-                <TableCell align='center'>Harga</TableCell>
               </TableRow>
-            </TableHead>
-            <TableBody>
-              {datarows.map((row, i) => (
-                <TableRow
-                  key={row.kode_barang}
-                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                >
-                  <TableCell align='center' width="20">{i + 1}</TableCell>
-                  <TableCell align='center' width="100">{row.kode_barang}</TableCell>
-                  <TableCell align='center' component="th" scope="row">
-                    {row.nama_barang}
-                  </TableCell>
-                  <TableCell align='center' width="150">Rp. {separator(row.harga_satuan)} </TableCell>
-                  <TableCell align='center' width="20">{row.jumlah}</TableCell>
-                  <TableCell align='center' width="150">Rp. {separator(row.harga_satuan * row.jumlah)}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
-      
-
-
-      <Container maxWidth={false} className={styles.containerKasir} >
-        <Grid container spacing={2} columns={12}>
-          <Grid item xs>
-            <p className={styles.textKasir}>Uang</p>  
-          </Grid>
-          <Grid item xs={1}></Grid>
-          <Grid item xs>
-            <p className={styles.textKasir}>Total Belanja</p>  
-          </Grid>
-          <Grid item xs={2}></Grid>
-          <Grid item xs>    
-            <p className={styles.textKasir}>Kembalian</p>  
-          </Grid>
-        </Grid>
-        <Grid container spacing={2} columns={12}>
-          <Grid item xs>
-            <Box className={styles.box}>
-              <p className={styles.textUang1}>Rp. 200.000</p>
-            </Box>
-          </Grid>
-          <Grid item xs={1}><box className={styles.boxSign}><p className={styles.sign}>-</p></box></Grid>
-          <Grid item xs>
-            <Box className={styles.box}>
-              <p className={styles.textUang2}>Rp. 190.000</p>
-            </Box>
-          </Grid>
-          <Grid item xs={2}><box className={styles.boxSign}><p className={styles.sign}>=</p></box></Grid>
-          <Grid item xs>    
-            <Box className={styles.box}>
-              <p className={styles.textUang2}>Rp. 10.000</p>
-            </Box>
-          </Grid>
-        </Grid>        
-      </Container>
-      
-      <button className={styles.beli}>Beli</button>
-        {/* Popup untuk menambahkan barang */}
-        {popupOpen && (
-        <div className={styles.popup}>
-          <div className={styles.popupContent}>
-            <span className={styles.closePopup} onClick={handleClosePopup}>&times;</span>
-            <h3>Tambah Barang</h3>
-            <input
-              type="text"
-              placeholder="Kode Barang"
-              value={kodeBarang}
-              onChange={(e) => setKodeBarang(e.target.value)}
-            />
-            <input
-              type="text"
-              placeholder="Nama Barang"
-              value={namaBarang}
-              onChange={(e) => setNamaBarang(e.target.value)}
-            />
-            <input
-              type="number"
-              placeholder="Harga Satuan"
-              value={hargaSatuan}
-              onChange={(e) => setHargaSatuan(e.target.value)}
-            />
-            <input
-              type="number"
-              placeholder="Jumlah"
-              value={jumlahBarang}
-              onChange={(e) => setJumlahBarang(e.target.value)}
-            />
-            <button onClick={handleTambahBarang}>Tambah</button>
-          </div>
-        </div>
-      )}
-
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </Box>
 
+    <button className={styles.beli} onClick={handleBeliClick}>
+      Beli
+    </button>
+
+    <Dialog open={openModal} onClose={handleCloseModal}>
+        <DialogTitle>Tambah Produk Baru</DialogTitle>
+        <DialogContent>
+          <div className={styles.formContent}>
+          <FormControl className={styles.namaBarang}>
+            <InputLabel>Nama Barang</InputLabel>
+            <Select
+              value={selectedProduct}
+              onChange={handleProductChange}
+            >
+              {productOptions.map((option) => (
+                <MenuItem key={option.idBarang} value={option.idBarang}>
+                  {option.nama}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <TextField
+            label="Jumlah"
+            type="number"
+            value={quantity}
+            onChange={handleQuantityChange}
+          />
+
+          <TextField
+            label="Harga Total"
+            value={`Rp. ${separator(totalPrice)}`}
+            disabled
+          />
+          </div>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseModal}>Batal</Button>
+          <Button onClick={handleAddProduct}>Simpan</Button>
+        </DialogActions>
+      </Dialog>
+
+    </Box>
   );
-}
+};

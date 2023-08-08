@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./style.module.css";
 import {
   TableFooter,
@@ -10,36 +10,21 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
-import { useState } from "react";
-import { useEffect } from "react";
 import axios from "axios";
-
-function createData(idBarang, tanggal, nama, jumlah, SKU, status) {
-  return { idBarang, tanggal, nama, jumlah, SKU, status };
-}
 
 export const History = () => {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:8000/history")
-      .then(({ data: { data: datas } }) => {
-        const mappedData = datas.map((data) =>
-          createData(
-            data.idBarang,
-            data.tanggal,
-            data.nama,
-            data.jumlah,
-            data.skuCode,
-            data.status
-          )
-        );
-
-        console.log(mappedData);
-
-        setData(mappedData);
-      });
+    axios.get("http://localhost:8000/history").then((response) => {
+      const historyData = response.data.data.map((item) => ({
+        ...item,
+        tanggal: item.tanggal ? new Date(item.tanggal).toISOString().substr(0, 10) : "",
+      }));
+      
+      
+      setData(historyData);
+    });
   }, []);
 
   return (
@@ -51,37 +36,37 @@ export const History = () => {
             <TableHead className={styles.rowHead}>
               <TableRow>
                 <TableCell align="center" className={styles.headContent}>
-                  ID Barang
+                  ID History
                 </TableCell>
                 <TableCell align="center">Tanggal</TableCell>
                 <TableCell align="center">Nama Barang</TableCell>
                 <TableCell align="center">Jumlah&nbsp;(Box)</TableCell>
                 <TableCell align="center">SKU</TableCell>
-                <TableCell align="center">Status</TableCell>
+                <TableCell align="center">Jenis Transaksi</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {data.map((row) => (
                 <TableRow
-                  key={row.idBarang}
+                  key={row["ID History"]}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
                   <TableCell component="th" scope="row" align="center">
-                    {row.idBarang}
+                    {row["ID History"]}
                   </TableCell>
-                  <TableCell align="center">{row.tanggal}</TableCell>
-                  <TableCell component="th" scope="row" align="center">
-                    {row.nama}
+                  <TableCell align="center">
+                    {row["Tanggal"]} {/* Format the date */}
                   </TableCell>
-                  <TableCell align="center">{row.jumlah}</TableCell>
+                  <TableCell align="center">{row["Nama Barang"]}</TableCell>
+                  <TableCell align="center">{row["Jumlah (Box)"]}</TableCell>
                   <TableCell align="center">{row.SKU}</TableCell>
-                  <TableCell align="center">{row.status}</TableCell>
+                  <TableCell align="center">{row["Jenis Transaksi"]}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
             <TableFooter className={styles.rowFooter}>
-              <TableCell colSpan={7} align="right">
-                A
+              <TableCell colSpan={6} align="right">
+                {/* Pagination component or other footer content */}
               </TableCell>
             </TableFooter>
           </Table>
@@ -90,3 +75,5 @@ export const History = () => {
     </div>
   );
 };
+
+export default History;

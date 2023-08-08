@@ -26,13 +26,11 @@ export const ProductInventory = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [newProduct, setNewProduct] = useState({
-    idBarang: '',
     nama: '',
-    stok: 0,
     indicator: '',
+    harga: '0',
   });
   const [openModal, setOpenModal] = useState(false);
-
   useEffect(() => {
     fetchData();
   }, []);
@@ -41,31 +39,29 @@ export const ProductInventory = () => {
     try {
       const productsResponse = await axios.get('http://localhost:8000/products');
       const products = productsResponse.data.data;
-      console.log(productsResponse);
-  
+
       if (Array.isArray(products)) {
         const productRows = await Promise.all(products.map(async (product) => {
           const indicator = product.indicator || 100;
           const skuResponse = await axios.get(`http://localhost:8000/products/${product.idBarang}/skus`);
-          const skus = skuResponse.data.data;
-  
-          // Sum the stock for each product
-          const totalStok = skus.reduce((acc, sku) => acc + sku.stok, 0);
-          const status = totalStok >= indicator ? 'Enough' : 'Low Stock';
-          return createData(product.idBarang, product.nama, totalStok, indicator, status);
+          const skus = skuResponse.data.data.skus;
 
+          return createData(product.idBarang, product.nama, skus, indicator, product.harga);
         }));
         setRows(productRows);
       }
-      setError(null); // Reset the error state if the fetch is successful
+      setError(null);
     } catch (error) {
       console.error('Error fetching products:', error);
       setError('Error fetching products. Please try again later.');
     }
   };
-  
-  const createData = (idBarang, nama, stok, indicator, status) => {
-    return { idBarang, nama, stok, indicator, status };
+
+  const createData = (idBarang, nama, skus, indicator, harga) => {
+    const filteredSkus = skus.filter(sku => sku.idBarang === idBarang);
+    const totalStok = filteredSkus.length > 0 ? filteredSkus.reduce((acc, sku) => acc + sku.stok, 0) : 0;
+    const status = totalStok >= indicator ? 'Enough' : 'Low Stock';
+    return { idBarang, nama, stok: totalStok, indicator, harga, status };
   };
 
   const getIndicatorStatus = (stock, indicator) => {
@@ -85,6 +81,7 @@ export const ProductInventory = () => {
     setNewProduct({
       nama: '',
       indicator: '',
+      harga: '',
     });
     setOpenModal(true);
   };
@@ -97,16 +94,21 @@ export const ProductInventory = () => {
     try {
       // Send a POST request to add the new product to the backend
       const response = await axios.post('http://localhost:8000/products', newProduct);
+  
       // Fetch the 'skus' data for the new product based on its 'idBarang'
       const skuResponse = await axios.get(`http://localhost:8000/products/${response.data.data.idBarang}/skus`);
       const skus = skuResponse.data.data;
+  
       // Calculate the total stock for the new product
-      const totalStok = skus.reduce((acc, sku) => acc + sku.stok, 0);
+      const totalStok = skus.length > 0 ? skus.reduce((acc, sku) => acc + sku.stok, 0) : '-';
+  
       const indicator = newProduct.indicator || 100;
       const status = totalStok >= indicator ? 'Enough' : 'Low Stock';
+      
       // Create a new row object for the new product and update the rows state
-      const newRow = createData(response.data.data.idBarang, response.data.data.nama, totalStok, indicator, status);
+      const newRow = createData(response.data.data.idBarang, response.data.data.nama, totalStok, indicator, response.data.data.harga, status);
       setRows([...rows, newRow]);
+      
       handleCloseModal(); // Close the modal after adding a new product
     } catch (error) {
       console.error('Error adding new product:', error);
@@ -147,6 +149,7 @@ export const ProductInventory = () => {
                       <TableCell>Nama Barang</TableCell>
                       <TableCell align="center">Stock&nbsp;(Box)</TableCell>
                       <TableCell align="center">Indicator</TableCell>
+                      <TableCell align="center">Harga</TableCell>
                       <TableCell align="center">Status</TableCell>
                     </TableRow>
                   </TableHead>
@@ -163,13 +166,14 @@ export const ProductInventory = () => {
                       <TableCell>{row.nama}</TableCell>
                       <TableCell align="center">{row.stok}</TableCell>
                       <TableCell align="center">{row.indicator}</TableCell>
+                      <TableCell align="center">{row.harga}</TableCell>
                       <TableCell align="center">{row.status}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
                   <TableFooter className={styles.rowFooter}>
                     <TableRow>
-                      <TableCell colSpan={5} align="right">
+                      <TableCell colSpan={6} align="right">
                         <Pagination
                           count={rows.length}
                           rowsPerPage={rowsPerPage}
@@ -206,6 +210,13 @@ export const ProductInventory = () => {
               name="indicator"
               type="number"
               value={newProduct.indicator}
+              onChange={handleNewProductChange}
+            />
+            <TextField
+              label="Harga"
+              name="harga"
+              type="number"
+              value={newProduct.harga}
               onChange={handleNewProductChange}
             />
           </div>
