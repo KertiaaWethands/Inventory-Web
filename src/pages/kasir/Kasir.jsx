@@ -83,6 +83,7 @@ export const Kasir = () => {
         idTransaksi: idTransaksi, // Use the idTransaksi you fetched or generated
         jenisTransaksi: 'transaction',
       }));
+      
       const validHistoryItems = await Promise.all(historyItems);
       const filteredHistoryItems = validHistoryItems.filter(item => item !== null); // Remove null items
   
@@ -106,6 +107,7 @@ export const Kasir = () => {
       console.error('Error adding transactions to history:', error);
     }
   };
+  
 const fetchLatestIdTransaksi = async () => {
   try {
     const response = await axios.get('http://localhost:8000/kasir');
@@ -229,6 +231,7 @@ const handleProductChange = (event) => {
       }
     }
   };
+  
   
   
   

@@ -49,8 +49,8 @@ export const PengembalianBarang = () => {
           `http://localhost:8000/products/${selectedProductId}/skus`
         );
         const skusData = response.data.data;
-        console.log(skusData);
-        setSkusForSelectedProduct(skusData);
+        console.log("skusData:", skusData); // Debug statement
+        setSkusForSelectedProduct(skusData || []); // Initialize to empty array if null
         setSelectedSkuCode(skusData.length > 0 ? skusData[0]?.skuCode : "");
         setSelectedSkuId(skusData.length > 0 ? skusData[0]?.idSKU : "");
       } catch (error) {
@@ -76,29 +76,45 @@ export const PengembalianBarang = () => {
   };
   const handleReturn = async () => {
     try {
+      if (skusForSelectedProduct.length === 0) {
+        alert("No SKUs available for this product.");
+        return;
+      }
+  
+      if (skusForSelectedProduct[0]?.stock <= 0) {
+        alert("Insufficient stock for return.");
+        return;
+      }
+  
       const requestData = {
         idBarang: selectedProduct,
         idSKU: selectedSkuId,
         jumlah: jumlah,
         alasan: alasan,
       };
-      const response = await axios.post('http://localhost:8000/return-items', requestData);
+  
+      const response = await axios.post(
+        "http://localhost:8000/return-items",
+        requestData
+      );
+  
       if (response.status === 200) {
-        alert('Return item added successfully');
+        alert("Return item added successfully");
         // Update the frontend display if needed
         // For example, you might refresh the product list or adjust the SKU stock display
       }
     } catch (error) {
-      console.error('Error adding return item:', error);
+      console.error("Error adding return item:", error);
       if (error.response && error.response.data) {
         const responseData = error.response.data;
-        console.log('Failed data:', responseData);
-        console.log('Failed message:', responseData.message);
+        console.log("Failed data:", responseData);
+        console.log("Failed message:", responseData.message);
         // You can display the error message or take any other action as needed.
       }
-      alert('Error adding return item. Please try again later.');
+      alert("Error adding return item. Please try again later.");
     }
   };
+  
   
   
   return (
@@ -160,36 +176,41 @@ export const PengembalianBarang = () => {
                   </FormControl>
                 </TableCell>
                 <TableCell component="th" scope="row">
-        <FormControl sx={{ minWidth: 200 }}>
-          <Select
-            displayEmpty
-            inputProps={{ 'aria-label': 'Without label' }}
-            style={{
-              borderRadius: '150px',
-              height: '35px',
-              backgroundColor: '#D3EBCD',
-            }}
-            value={selectedSkuCode}
-            onChange={(event) => setSelectedSkuCode(event.target.value)}
+                <FormControl sx={{ minWidth: 200 }}>
+  <Select
+    displayEmpty
+    inputProps={{ 'aria-label': 'Without label' }}
+    style={{
+      borderRadius: '150px',
+      height: '35px',
+      backgroundColor: '#D3EBCD',
+    }}
+    value={selectedSkuCode}
+    onChange={(event) => setSelectedSkuCode(event.target.value)}
+  >
+    {skusForSelectedProduct && skusForSelectedProduct.skus ? (
+      skusForSelectedProduct.skus.length === 0 ? (
+        <MenuItem disabled>No SKUs added</MenuItem>
+      ) : (
+        skusForSelectedProduct.skus.map((sku) => (
+          <MenuItem
+            key={sku.idSKU}
+            name={sku.idSKU}
+            value={sku.skuCode}
+            onClick={() => setSelectedSkuId(sku.idSKU)}
           >
-            {skusForSelectedProduct == null ? (
-              <MenuItem disabled>Loading SKUs...</MenuItem>
-            ) : skusForSelectedProduct.length === 0 ? (
-              <MenuItem disabled>No SKUs added</MenuItem>
-            ) : (
-              skusForSelectedProduct.skus.map((sku) => ( // Note the change here
-                <MenuItem
-                  key={sku.idSKU}
-                  name={sku.idSKU}
-                  value={sku.skuCode}
-                  onClick={() => setSelectedSkuId(sku.idSKU)}
-                >
-                  {sku.skuCode}
-                </MenuItem>
-              ))
-            )}
-          </Select>
-        </FormControl>
+            {sku.skuCode}
+          </MenuItem>
+        ))
+      )
+    ) : (
+      <MenuItem disabled>Loading SKUs...</MenuItem>
+    )}
+  </Select>
+</FormControl>
+
+
+
       </TableCell>
                 <TableCell align="center">
                   <input type="text" value={jumlah} onChange={handleJumlahChange} />

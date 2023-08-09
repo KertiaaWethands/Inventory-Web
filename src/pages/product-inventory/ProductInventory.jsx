@@ -28,9 +28,10 @@ export const ProductInventory = () => {
   const [newProduct, setNewProduct] = useState({
     nama: '',
     indicator: '',
-    harga: '0',
+    harga: '',
   });
   const [openModal, setOpenModal] = useState(false);
+  
   useEffect(() => {
     fetchData();
   }, []);
@@ -58,15 +59,12 @@ export const ProductInventory = () => {
   };
 
   const createData = (idBarang, nama, skus, indicator, harga) => {
-    const filteredSkus = skus.filter(sku => sku.idBarang === idBarang);
+    const filteredSkus = skus || [];
     const totalStok = filteredSkus.length > 0 ? filteredSkus.reduce((acc, sku) => acc + sku.stok, 0) : 0;
     const status = totalStok >= indicator ? 'Enough' : 'Low Stock';
     return { idBarang, nama, stok: totalStok, indicator, harga, status };
   };
-
-  const getIndicatorStatus = (stock, indicator) => {
-    return stock >= indicator ? 'Enough' : 'Low Stock';
-  };
+  
 
   const handleNewProductChange = (event) => {
     const { name, value } = event.target;
@@ -77,12 +75,6 @@ export const ProductInventory = () => {
   };
 
   const handleOpenModal = () => {
-    // Clear the form input when opening the modal
-    setNewProduct({
-      nama: '',
-      indicator: '',
-      harga: '',
-    });
     setOpenModal(true);
   };
 
@@ -106,7 +98,7 @@ export const ProductInventory = () => {
       const status = totalStok >= indicator ? 'Enough' : 'Low Stock';
       
       // Create a new row object for the new product and update the rows state
-      const newRow = createData(response.data.data.idBarang, response.data.data.nama, totalStok, indicator, response.data.data.harga, status);
+      const newRow = createData(response.data.data.idBarang, response.data.data.nama, skus, indicator, response.data.data.harga, status);
       setRows([...rows, newRow]);
       
       handleCloseModal(); // Close the modal after adding a new product
@@ -115,7 +107,7 @@ export const ProductInventory = () => {
       setError('Error adding new product. Please try again later.');
     }
   };
-  
+
   return (
     <div className={styles.container}>
       <div className={styles.content}>

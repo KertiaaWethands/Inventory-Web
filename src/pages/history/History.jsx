@@ -9,8 +9,10 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Button,
 } from "@mui/material";
 import axios from "axios";
+import jsPDF from "jspdf";
 
 export const History = () => {
   const [data, setData] = useState([]);
@@ -21,16 +23,36 @@ export const History = () => {
         ...item,
         tanggal: item.tanggal ? new Date(item.tanggal).toISOString().substr(0, 10) : "",
       }));
-      
-      
       setData(historyData);
     });
   }, []);
+
+  const handleDownloadPDF = () => {
+    const pdf = new jsPDF();
+    pdf.text("History Data", 10, 10);
+    data.forEach((row, index) => {
+      const yPos = 20 + index * 10;
+      pdf.text(
+        `${row["ID History"]} | ${row["Tanggal"]} | ${row["Nama Barang"]} | ${row["Jumlah (Box)"]} | ${row.SKU} | ${row["Jenis Transaksi"]}`,
+        10,
+        yPos
+      );
+    });
+    pdf.save("history_data.pdf");
+  };
 
   return (
     <div className={styles.container}>
       <div className={styles.HistoryContainer}>
         <h1 className={styles.title}>History</h1>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleDownloadPDF}
+          className={styles.downloadButton}
+        >
+          Download PDF
+        </Button>
         <TableContainer component={Paper} className={styles.tabel}>
           <Table aria-label="simple table">
             <TableHead className={styles.rowHead}>
@@ -54,9 +76,7 @@ export const History = () => {
                   <TableCell component="th" scope="row" align="center">
                     {row["ID History"]}
                   </TableCell>
-                  <TableCell align="center">
-                    {row["Tanggal"]} {/* Format the date */}
-                  </TableCell>
+                  <TableCell align="center">{row["Tanggal"]}</TableCell>
                   <TableCell align="center">{row["Nama Barang"]}</TableCell>
                   <TableCell align="center">{row["Jumlah (Box)"]}</TableCell>
                   <TableCell align="center">{row.SKU}</TableCell>

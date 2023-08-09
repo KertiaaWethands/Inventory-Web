@@ -35,17 +35,10 @@ export const DetailBarang = () => {
     stok: "",
   });
 
-  const [rows, setRows] = useState([]);
-
-  // New state for adding a product
-  const [newProduct, setNewProduct] = useState({
-    nama: "",
-    indicator: "",
-    harga: "",
-  });
-
   useEffect(() => {
-    fetchData();
+    if (idBarang) {
+      fetchData();
+    }
   }, [idBarang]);
 
   const fetchData = async () => {
@@ -54,6 +47,12 @@ export const DetailBarang = () => {
         `http://localhost:8000/products/${idBarang}/skus`
       );
       const productData = response.data.data;
+  
+      if (!productData || !productData.skus) {
+        setError("No product data available.");
+        return;
+      }
+  
       const formattedProductData = {
         nama: productData.nama,
         skus: productData.skus.map((sku) => ({
@@ -70,6 +69,8 @@ export const DetailBarang = () => {
       setError("Error fetching product. Please try again later.");
     }
   };
+  
+  
 
   const handleOpenModal = () => {
     setNewData({
@@ -94,41 +95,28 @@ export const DetailBarang = () => {
     }));
   };
 
- // ... kode sebelumnya ...
-
-const handleAddData = async () => {
-  try {
-    const response = await axios.post(
-      `http://localhost:8000/products/${idBarang}/skus`,
-      newData
-    );
-    const newSKU = response.data.data;
-    setProduct((prevProduct) => ({
-      ...prevProduct,
-      skus: [...prevProduct.skus, newSKU],
-    }));
-    handleCloseModal();
-  } catch (error) {
-    console.error("Error adding new data:", error);
-    setError("Error adding new data. Please try again later.");
-  }
-};
-
-// ... kode setelahnya ...
-
-
-  const handleAddProduct = async () => {
+  const handleAddData = async () => {
     try {
       const response = await axios.post(
-        `http://localhost:8000/products`,
-        newProduct
+        `http://localhost:8000/products/${idBarang}/skus`,
+        newData
       );
-      const addedProduct = response.data.data;
-      // Update your products state here or perform any necessary action
+      const newRow = {
+        idSKU: response.data.data.idSKU,
+        skuCode: newData.skuCode,
+        productionDate: newData.productionDate,
+        expiredDate: newData.expiredDate,
+        inboundDate: newData.inboundDate,
+        stok: newData.stok,
+      };
+      setProduct((prevProduct) => ({
+        ...prevProduct,
+        skus: [...prevProduct.skus, newRow],
+      }));
       handleCloseModal();
     } catch (error) {
-      console.error("Error adding new product:", error);
-      setError("Error adding new product. Please try again later.");
+      console.error("Error adding new data:", error);
+      setError("Error adding new data. Please try again later.");
     }
   };
 
@@ -164,6 +152,7 @@ const handleAddData = async () => {
                     <Table>
                       <TableHead className={styles.rowHead}>
                         <TableRow>
+                          <TableCell>ID SKU</TableCell>
                           <TableCell>SKU Code</TableCell>
                           <TableCell>Production Date</TableCell>
                           <TableCell>Expired Date</TableCell>
@@ -179,6 +168,7 @@ const handleAddData = async () => {
                           )
                           .map((sku) => (
                             <TableRow key={sku.idSKU}>
+                              <TableCell>{sku.idSKU}</TableCell>
                               <TableCell>{sku.skuCode}</TableCell>
                               <TableCell>{sku.productionDate}</TableCell>
                               <TableCell>{sku.expiredDate}</TableCell>
@@ -211,9 +201,9 @@ const handleAddData = async () => {
                     </Table>
                   </TableContainer>
                 </div>
-              ) : (
-                <p>No SKUs available for this product.</p>
-              )}
+             ) : (
+              <p>No SKUs available for this product.</p>
+            )}
 
               {openModal && (
                 <div className={styles.popup}>
@@ -221,6 +211,12 @@ const handleAddData = async () => {
                     <DialogTitle>Tambah Data</DialogTitle>
                     <DialogContent>
                       <div className={styles.formContent}>
+                        <TextField
+                          label="ID SKU"
+                          name="idSKU"
+                          value={newData.idSKU}
+                          onChange={handleNewDataChange}
+                        />
                         <TextField
                           label="SKU Code"
                           name="skuCode"
