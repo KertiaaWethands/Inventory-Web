@@ -42,7 +42,7 @@ export const Kasir = () => {
     jumlah: 0,
     idSKU: '',
     idTransaksi: '',
-    jenisTransaksi: 'transaction', // Jenis transaksi "transaction"
+    jenisTransaksi: 'Penjualan', // Jenis transaksi "transaction"
   });
   const handleBeliClick = async () => {
     try {
@@ -53,6 +53,7 @@ export const Kasir = () => {
   
       const currentDate = new Date().toISOString().split('T')[0]; // Get the current date
       const idTransaksi = await fetchLatestIdTransaksi();
+
   
       if (idTransaksi === null) {
         console.error('No transactions found.');
@@ -60,30 +61,24 @@ export const Kasir = () => {
       }
   
       const historyItems = datarows.map(async (row) => {
-        const idSKU = await fetchIdSKU(row['idSKU']);
-        if (idSKU === null) {
-          console.error(`ID SKU not found for product: ${row['idSKU']}`);
+        const idBarang = await fetchIdSKU(row['Nama Barang']);
+        if (idBarang === null) {
+          console.error(`ID SKU not found for product: ${row['Nama Barang']}`);
           return null;
         }
   
         return {
           tanggal: currentDate,
           jumlah: row['Jumlah'],
-          idBarang: row['Kode Barang'],
-          idSKU: row['idSKU'],
-          idTransaksi: row['idTransaksi'],
-          jenisTransaksi: 'transaction',
+          idBarang: row['idBarang'],
+          idSKU:row['idSKU'] ,
+          idTransaksi: row['No'],
+          jenisTransaksi: 'Penjualan',
         };
       });
-      const transactionItems = datarows.map(row => ({
-        tanggal: currentDate,
-        jumlah: row['Jumlah'],
-        idBarang: row['Kode Barang'],
-        idSKU: row['idSKU'],
-        idTransaksi: idTransaksi, // Use the idTransaksi you fetched or generated
-        jenisTransaksi: 'transaction',
-      }));
-      
+
+    
+      // console.log(transactionItems);
       const validHistoryItems = await Promise.all(historyItems);
       const filteredHistoryItems = validHistoryItems.filter(item => item !== null); // Remove null items
   
@@ -93,8 +88,9 @@ export const Kasir = () => {
       }
   
       const response = await axios.post('http://localhost:8000/insert-history', {
-        items: filteredHistoryItems,
+        items: validHistoryItems,
       });
+      console.log(response);
   
       if (response.status === 500) {
         console.log('Transaction added to history successfully.', response);
@@ -108,38 +104,44 @@ export const Kasir = () => {
     }
   };
   
-const fetchLatestIdTransaksi = async () => {
-  try {
-    const response = await axios.get('http://localhost:8000/kasir');
-    if (response.data.data.length > 0) {
-      const latestTransaksi = response.data.data[response.data.data.length - 1];
-      return latestTransaksi.idTransaksi; // Return the latest idTransaksi from kasir table
-    } else {
-      return null;
-    }
-  } catch (error) {
-    console.error('Error fetching latest idTransaksi:', error);
-    return null;
-  }
-};
-
-  const fetchOldestInboundDate = async (idSKU) => {
+  const fetchLatestIdTransaksi = async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/products/oldest/${idSKU}`);
-      return response.data.inboundDate; // Return the oldest inboundDate
+      const response = await axios.get('http://localhost:8000/kasir');
+      const dataArray = response.data.data; // Assuming dataArray is the array of objects
+      
+      // Extract the "No" values from each object
+      const noValues = dataArray.map(item => item.No);
+      // console.log(noValues); // This will output an array of "No" values
+      
+      if (noValues.length > 0) {
+        const latestNo = Math.max(...noValues); // Get the latest "No" value
+        return latestNo;
+      } else {
+        return null;
+      }
     } catch (error) {
-      console.error('Error fetching oldest inboundDate:', error);
+      console.error('Error fetching latest idTransaksi:', error);
       return null;
     }
   };
   
+
   
   const fetchIdSKU = async (productName) => {
     try {
       const response = await axios.get(`http://localhost:8000/products/idSKU/${productName}`);
-      return response.data.idSKU;
+      const dataArray = response.data.data; 
+      const noValues = dataArray.map(item => item.idSKU);
+      console.log(productName);
+      
+      if (noValues.length > 0) {
+        const latestNo = Math.max(...noValues); // Get the latest "No" value
+        return latestNo;
+      } else {
+        return null;
+      }
     } catch (error) {
-      console.error('Error fetching idSKU:', error);
+      console.error('Error fetching latest idTransaksi:', error);
       return null;
     }
   }

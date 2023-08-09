@@ -70,7 +70,7 @@ export const History = () => {
       <div className={styles.HistoryContainer}>
         <h1 className={styles.title}>History</h1>
         <div className={styles.filters}>
-          <FormControl>
+          <FormControl className={styles.sorting}>
             <InputLabel>Year</InputLabel>
             <Select value={selectedYear} onChange={handleYearChange}>
               <MenuItem value="">All</MenuItem>
@@ -81,7 +81,7 @@ export const History = () => {
               ))}
             </Select>
           </FormControl>
-        </div>
+       
         <Button
         style={{
           background: 'linear-gradient(#D3EBCD, #B1E9A3)',
@@ -99,6 +99,8 @@ export const History = () => {
         >
           Download PDF
         </Button>
+        
+          </div>
         <TableContainer component={Paper} className={styles.tabel}>
           <Table aria-label="simple table">
             <TableHead className={styles.rowHead}>
