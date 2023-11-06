@@ -96,3 +96,6 @@ Aplikasi akan berjalan di browser Anda. Anda dapat mengaksesnya di alamat http:/
 Patuhi aturan dan konvensi ini untuk memastikan kerjasama yang lancar dan komunikasi yang jelas dalam tim. Selamat coding!
 
 
+# Developer 
+
+[Robby Sobari](https://github.com/robbysobarii)
